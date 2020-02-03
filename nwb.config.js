@@ -6,7 +6,7 @@ module.exports = {
   webpack: {
     publicPath: '',
     extra: {
-      devtool: false
+      devtool: 'source-map'
     }
   }
 }

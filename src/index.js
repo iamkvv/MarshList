@@ -1,8 +1,7 @@
 import './index.css'
-
 import React from 'react'
-import {render} from 'react-dom'
+import { render } from 'react-dom'
+import ConnApp from './Main/contApp'
+////////////
 
-import App from './App'
-
-render(<App/>, document.querySelector('#app'))
+render(<ConnApp />, document.querySelector('#app'))

@@ -4,7 +4,7 @@
   "description": "Маршрутные листы",
   "private": true,
   "scripts": {
-    "build": "nwb build-react-app",
+    "build": "nwb build-react-app && node node_modules/.bin/zip_dist",
     "clean": "nwb clean-app",
     "start": "nwb serve-react-app",
     "test": "nwb test-react",
