@@ -1,22 +1,21 @@
 import React, { Component } from 'react'
 import { Modal, Form, Input, Button, DatePicker, Select } from 'antd';
 import { connect } from 'react-redux'
+import moment from 'moment';
 
 const { Option } = Select;
-const { TextArea } = Input;
-
 
 const getUsers = (authData) => {
     return { type: "START_GET_USERS", auth: authData }
 }
-const addMarshList = (authData, params) => {
-    return { type: "ADD_MARSHLIST", auth: authData, params: params }
+const updateMarshList = (authData, params) => {
+    return { type: "UPDATE_MARSHLIST", auth: authData, params: params }
 }
 
 const DtoP = (dispatch) => {
     return {
         getUsers: (a) => dispatch(getUsers(a)),
-        addMarshList: (a, p) => dispatch(addMarshList(a, p))   //{ type: "ADD_MARSHLIST", auth: a, params: p })//addMarshList(a, p)),
+        updateMarshList: (a, p) => dispatch(updateMarshList(a, p))
     }
 }
 
@@ -28,37 +27,12 @@ const StoP = (state) => {
         users: state.users
     }
 }
-
-
-
-
 ////////////
-const AddRoute_List = Form.create({ name: 'addMarshList_modal' })(
+const ChangeRoute_List = Form.create({ name: 'changeMarshList_modal' })(
 
     class extends React.Component {
-        state = { visible: false }
 
-
-        onCancel = () => {
-            this.setState({ visible: false });
-            this.props.form.resetFields()
-        }
-
-        onCreateButtonClick = () => {
-            //ВЫЧИСТИТЬ ГОВНОКОД
-            if (!this.props.users.length) {
-                this.props.getUsers(this.props.auth)
-                this.setState({ visible: true })
-            }
-            let self = this;
-            setTimeout(() => {
-                if (self.props.users.length > 0) {
-                    self.setState({ visible: true })
-                }
-            }, 200)
-        }
-
-        BProp = (title) => {
+        BProp = (title) => {//Возврашает PROPERTY_n по русс. имени поля
             for (let fld of Object.keys(this.props.marshListFields)) {
                 if (this.props.marshListFields[fld].NAME === title) return fld
             }
@@ -75,23 +49,21 @@ const AddRoute_List = Form.create({ name: 'addMarshList_modal' })(
                     let formvals = Object.assign({}, { user: userObj, comment: values.comment, date: values.date.format("DD.MM.YYYY") })
                     console.log("FORMVALS", formvals);
 
-                    let params = "&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=ML1&" + "fields[" + this.BProp("Название") + "]" + "=МЛ" + "&" +
+                    let params = "&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=ML1&ELEMENT_ID=" + this.props.selectedMarshList.ID + "&" +
+                        "fields[" + this.BProp("Название") + "]" + "=МЛ" + "&" +
                         "fields[" + this.BProp("Исполнитель") + "]" + "=" + formvals.user.LAST_NAME + " " + formvals.user.NAME + "&" +
                         "fields[" + this.BProp("ID Исполнителя") + "]" + "=" + formvals.user.ID + "&" +
                         "fields[" + this.BProp("Дата") + "]" + "=" + formvals.date + "&" +
                         "fields[" + this.BProp("Комментарий") + "]" + "=" + formvals.comment + "&" +
-                        "fields[" + this.BProp("Расстояние") + "]" + "=0" + "&" +
-                        "ELEMENT_CODE=" + (new Date().getTime())
+                        "fields[" + this.BProp("Расстояние") + "]" + "=" + this.props.selectedMarshList[this.BProp("Расстояние")]
 
-                    this.props.addMarshList(this.props.auth, params);
+                    this.props.updateMarshList(this.props.auth, params);
                     //ГОВОНОКОДИЩЕ  - сделать редюсеры
                     setTimeout(() => {
-                        self.setState({ visible: false });
-                        self.props.form.resetFields()
-                    }, 500)
+                        self.props.manageVisible();
+                        self.props.form.resetFields();
+                    }, 800)
 
-
-                    //this.props.onCreate(formvals, this.props.form);
                 } else {
                     console.log('ERR', err, values);
                 }
@@ -100,40 +72,37 @@ const AddRoute_List = Form.create({ name: 'addMarshList_modal' })(
 
         render() {
             const { users, onCancel, onCreate, form } = this.props;
-            const { visible } = this.state;
-            console.log("Modal props", this.props)
+            // const { visible } = this.state;
+            console.log("Modal changeMarshList props", this.props)
             // ///???? value
             const Users = users.map((user) =>
                 (<Option key={user.ID}>{`${user.LAST_NAME} ${user.NAME}`}</Option>)
             );
-
             const { getFieldDecorator } = form;
+
             return (
                 <React.Fragment>
-                    <React.Fragment>
-                        <div style={{ margin: '15px' }}>
-                            <Button onClick={this.onCreateButtonClick} type="primary" style={{ marginLeft: 8 }}>
-                                Новый маршрутный лист
-                            </Button>
-                        </div>
-
+                    {this.props.changeMarshListvisible ?
                         <Modal
-                            visible={visible}
-                            title="Новый маршрутный лист"
-                            okText="Создать"
-                            onCancel={() => this.onCancel()}
-                            onOk={this.handleSubmit} //{onCreate}
+                            visible={this.props.changeMarshListvisible}
+                            manageVisible={this.props.manageVisible}
+                            title="Изменить маршрутный лист"
+                            okText="Сохранить"
+                            onCancel={() => this.props.manageVisible()}
+                            onOk={this.handleSubmit}
                         >
 
-                            <Form layout="vertical" >
+                            <Form layout="vertical"  >
                                 <Form.Item label="Дата">
                                     {getFieldDecorator('date', {
+                                        initialValue: moment(this.props.selectedMarshList[this.BProp("Дата")], 'DD/MM/YYYY'),
                                         rules: [{ required: true, message: 'Укажите дату маршрутного листа' }],
                                     })(<DatePicker format="DD.MM.YYYY" />)}
                                 </Form.Item>
 
                                 <Form.Item label="Исполнитель">
                                     {getFieldDecorator('user', {
+                                        initialValue: this.props.selectedMarshList[this.BProp("ID Исполнителя")],
                                         rules: [{ required: true, message: 'Выберите исполнителя' }],
                                     })(
                                         <Select filterOption={(input, option) =>
@@ -145,12 +114,15 @@ const AddRoute_List = Form.create({ name: 'addMarshList_modal' })(
                                 </Form.Item>
 
                                 <Form.Item label="Комментарий">
-                                    {getFieldDecorator('comment')(<Input />)}
+                                    {getFieldDecorator('comment',
+                                        { initialValue: this.props.selectedMarshList[this.BProp("Комментарий")] })(<Input />)}
                                 </Form.Item>
                             </Form>
                         </Modal>
-                    </React.Fragment>
 
+                        :
+                        null
+                    }
                 </React.Fragment>
 
             );
@@ -158,6 +130,6 @@ const AddRoute_List = Form.create({ name: 'addMarshList_modal' })(
     },
 );
 
-const AddRouteList = connect(StoP, DtoP)(AddRoute_List)
+const ChangeRouteList = connect(StoP, DtoP)(ChangeRoute_List)
 
-export default AddRouteList;
+export default ChangeRouteList;

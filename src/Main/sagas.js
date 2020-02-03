@@ -1,5 +1,5 @@
 import { all, call, put, takeEvery } from 'redux-saga/effects';
-import { fetchLists, getFields, getListData, addList, addFields, getUsers, addMarshList } from '../bitrixApi'
+import { fetchLists, getFields, getListData, addList, addFields, getUsers, addMarshList, deleteMarshList, updateMarshList } from '../bitrixApi'
 
 
 function* watchGetLists() {
@@ -113,7 +113,6 @@ function* fetchUsers(action) {
 }
 
 function* watchAddMarshList(action) {
-
     yield takeEvery("ADD_MARSHLIST", addMarshlist)
 }
 
@@ -134,10 +133,62 @@ function* addMarshlist(action) {
 
         yield put({ type: 'MARSHLIST_DATA_GET', marshListData: convML })
 
-
-
-
     } catch (error) {
+        yield put({ type: "FETCH_FAILED", error })
+    }
+}
+
+
+function* watchDeleteMarshList(action) {
+    yield takeEvery("DELETE_MARSHLIST", removeMarshlist)
+}
+
+function* removeMarshlist(action) {
+    try {
+        const delData = yield call(deleteMarshList, action.auth, action.id); //ERRORS!!
+        console.log(delData);
+
+        const dataML = yield call(getListData, action.auth, "ML1");
+        //значения полей PROPERTY_ являлись объектом = приводим из к простым значениям
+        var convML = dataML.result.map(d => {
+            Object.keys(d).forEach(p =>
+                p.includes('PROPERTY_') ? d[p] = d[p][Object.keys(d[p])[0]] : d[p] = d[p]
+            )
+            return d
+        })
+        // const dataTL = yield call(getListData, action.auth, "TL1");
+
+        yield put({ type: 'MARSHLIST_DATA_GET', marshListData: convML })
+
+    }
+    catch (error) {
+        yield put({ type: "FETCH_FAILED", error })
+    }
+}
+
+function* watchUpdateMarshList(action) {
+    yield takeEvery("UPDATE_MARSHLIST", changeMarshlist)
+}
+
+function* changeMarshlist(action) {
+    try {
+        const updateData = yield call(updateMarshList, action.auth, action.params); //DO ERRORS!!
+        console.log(updateData);
+
+        const dataML = yield call(getListData, action.auth, "ML1");
+        //значения полей PROPERTY_ являлись объектом = приводим иx к простым значениям
+        var convML = dataML.result.map(d => {
+            Object.keys(d).forEach(p =>
+                p.includes('PROPERTY_') ? d[p] = d[p][Object.keys(d[p])[0]] : d[p] = d[p]
+            )
+            return d
+        })
+        // const dataTL = yield call(getListData, action.auth, "TL1");
+
+        yield put({ type: 'MARSHLIST_DATA_GET', marshListData: convML })
+
+    }
+    catch (error) {
         yield put({ type: "FETCH_FAILED", error })
     }
 }
@@ -148,6 +199,8 @@ export default function* rootSaga() {
         watchGetLists(),
         watchCreateLists(),
         watchGetUsers(),
-        watchAddMarshList()
+        watchAddMarshList(),
+        watchDeleteMarshList(),
+        watchUpdateMarshList()
     ])
 }

@@ -1,11 +1,29 @@
 import React, { Component } from 'react'
-import { Button, Divider, Table, Row, Col } from 'antd'
+import { Modal, Divider, Table, Row, Col } from 'antd'
 
 import AddRouteList from '../AddRouteList/addRouteList'
+import ChangeRouteList from '../ChangeRouteList/changeRouteList'
 
 
 class RouteList extends Component {
-    state = { selectedRowIndex: 0 }
+    state = {
+        selectedRowIndex: 0,
+        selectedMarshList: null,
+        showDeleteModal: false,
+        changeMarshListvisible: false
+    }
+
+    onCancelDelete = () => {
+        this.setState({ showDeleteModal: false })
+    }
+
+    deleteMarshList = () => {
+        console.log("ForDELETE", this.props.auth, this.state.selectedMarshList)
+        this.props.deleteMarshList(this.props.auth, this.state.selectedMarshList.ID);
+        setTimeout(() => {
+            this.setState({ showDeleteModal: false })
+        }, 300)
+    }
 
     componentWillMount() {
         //this.props.checkAuth();
@@ -50,6 +68,19 @@ class RouteList extends Component {
         return res;
     }
 
+    manageVisible = () => {
+        if (!this.props.users.length) {
+            this.props.getUsers(this.props.auth)
+        }
+
+        setTimeout(() => {
+            this.setState({
+                changeMarshListvisible: !this.state.changeMarshListvisible
+            });
+
+        }, 300)
+
+    }
 
     render() {
         const { marshListData, marshListFields, auth } = this.props;
@@ -59,8 +90,19 @@ class RouteList extends Component {
                 {marshListData ?
                     <div>
                         <AddRouteList />
+                        <ChangeRouteList selectedMarshList={this.state.selectedMarshList} manageVisible={this.manageVisible} changeMarshListvisible={this.state.changeMarshListvisible} />
 
-
+                        <Modal
+                            visible={this.state.showDeleteModal}
+                            title="Удаление  маршрутного листа"
+                            centered
+                            okText="Да"
+                            cancelText="Нет"
+                            onOk={this.deleteMarshList}
+                            onCancel={this.onCancelDelete}
+                        >
+                            <p>Вы хотите удалить эту запись?</p>
+                        </Modal>
 
                         <Table
                             rowClassName={(record, index) => {
@@ -68,7 +110,7 @@ class RouteList extends Component {
                             }}
                             pagination={{ pageSize: 5 }}
                             size="small"
-                            scroll={{ scrollToFirstRowOnChange: true }}
+                            scroll={{ scrollToFirstRowOnChange: false }}
                             //  rowSelection={rowSelection}
                             rowKey={rec => (rec.ID)}
                             columns={this.createColumns()}
@@ -78,11 +120,20 @@ class RouteList extends Component {
                                 var self = this;
                                 return {
                                     onClick: event => {
-                                        console.log(event.target.text == 'Удалить', record, rowIndex);
-                                        self.setState({
-                                            selectedRowIndex: rowIndex,
-                                            selectedRouteList: record,
-                                        });
+                                        console.log("Click by ROW", event.target.text == 'Удалить', record, rowIndex);
+
+                                        self.setState({ selectedRowIndex: rowIndex, selectedMarshList: record })
+
+                                        if (event.target.text == 'Удалить') {
+                                            self.setState({
+                                                showDeleteModal: true,
+                                            });
+                                        }
+
+                                        if (event.target.text == 'Изменить') {
+                                            self.manageVisible()
+
+                                        }
                                     }
                                 }
                             }}

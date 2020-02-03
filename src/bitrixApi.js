@@ -113,3 +113,20 @@ export function addMarshList(auth, params) {
         .then(response => response.json())
 }
 
+//Удаление Марш листа
+export function deleteMarshList(auth, elementid) {
+    let addr = "rest/lists.element.delete";
+    let params = `&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=ML1&ELEMENT_ID=${elementid}`
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
+    return fetch(request, Get)
+        .then(response => response.json());
+}
+
+//Обновление Марш листа
+export function updateMarshList(auth, params) {
+
+    let addr = "rest/lists.element.update"
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
+    return fetch(request, Post)
+        .then(response => response.json())
+}
