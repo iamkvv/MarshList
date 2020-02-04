@@ -8,9 +8,14 @@ const deleteMarshList = (authData, id) => {
 const getUsers = (authData) => {
     return { type: "START_GET_USERS", auth: authData }
 }
+
+const selectedMarshList = (ml) => {
+    return { type: "SELECTED_MARSHLIST", selectedMarshList: ml }
+}
 const DtoP = (dispatch) => {
     return {
         deleteMarshList: (a, id) => dispatch(deleteMarshList(a, id)),
+        selectMarshList: (ml) => dispatch(selectedMarshList(ml)),
         getUsers: (a) => dispatch(getUsers(a))
     }
 }
@@ -22,7 +27,9 @@ const StoP = (state) => {
         users: state.users,
         marshList: state.marshList,
         marshListData: state.marshListData,
-        marshListFields: state.marshListFields
+        marshListFields: state.marshListFields,
+        selectedMarshList: state.selectedMarshList,
+        taskListData: state.taskListData //TMP!!!
     }
 }
 

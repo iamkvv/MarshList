@@ -6,6 +6,7 @@ import ruRU from 'antd/lib/locale-provider/ru_RU';
 
 import ListsNotFound_Create from '../ListsNotFound/contListsNotFound'
 import RouteList_CRUD from '../RouteList/contRouteList'
+import TaskList from '../TaskList/taskList'
 
 import ConnTest from './test'
 
@@ -44,8 +45,6 @@ class App extends Component {
                                 <h1 style={{ textAlign: 'center', color: '#3f417d;' }}>Маршрутные листы</h1>
                             </Col>
                         </Row>
-
-
                         <Row type="flex" justify="space-around" align="middle">
                             <Col span={20} offset={2}>
                                 <ListsNotFound_Create />
@@ -53,26 +52,14 @@ class App extends Component {
                                 <RouteList_CRUD />
                             </Col>
                         </Row>
+                        <Row type="flex" justify="space-around" align="middle">
+                            <Col span={20} offset={2}>
+                                <TaskList />
+                            </Col>
+                        </Row>
 
 
 
-                        {/**
-                        {
-                            Object.keys(marshList).length > 0 ?
-                                <Row type="flex" justify="space-around" align="middle">
-                                    <Col span={24}>
-
-                                        <Test />
-                                        <p>Все остальное</p>
-                                        <h3>token: {auth.token}</h3>
-                                        <h4>exp: {auth.expires_in}</h4>
-                                    </Col>
-                                </Row>
-                                :
-                                null
-                        }
-
- */}
 
 
 

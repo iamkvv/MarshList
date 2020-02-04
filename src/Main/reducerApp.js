@@ -3,7 +3,7 @@ const checkAuth = () => { //вынести в Helper
     if (!window.BX24) {
         conf = {
             auth: {
-                token: 'cd44385e004416ca0031392000000001201c036ed43aaf27b9dcf493fef5b2635010cc',
+                token: '767f395e004416ca0031392000000001201c03729fad6f1c7f637fc3980a045b453878',
                 expires_in: new Date().valueOf(),
                 refresh_token: "123456",
                 domain: "anywhere.bitrix24.ru"
@@ -11,6 +11,7 @@ const checkAuth = () => { //вынести в Helper
         }
     }
     else {
+        n
         let a = BX24.getAuth();
         conf = {
             auth: {
@@ -35,8 +36,12 @@ const iniState = {
     taskList: -1, //метаданные списка TaskList
     marshListFields: null, //метаданные полей MarshList
     taskListFields: null, //метаданные полей TaskList
+    companyFields: null,
     marshListData: null, //все марш. листы
+    taskListData: null,//все задания
+    selectedMarshList: null, //выбранный маршю лист (по умолч. 1-й )
     users: [],
+    companies: [],
     // creatingLists: false, //строятся ли листы
     listsError: null, //опиание ошибки при работе со списками
     somedata: { a: 1 }
@@ -63,8 +68,22 @@ const reducerApp = (state = iniState, action) => {
         case "MARSHLIST_DATA_GET":
             return Object.assign({}, state, { marshListData: action.marshListData });
 
+        case "TASKLIST_DATA_GET":
+            return Object.assign({}, state, { taskListData: action.taskListData });
+
+        case "SELECTED_MARSHLIST":
+            return Object.assign({}, state, { selectedMarshList: action.selectedMarshList });
+
+
+
         case "GET_USERS":
             return Object.assign({}, state, { users: action.users });
+
+        case "GET_COMPANIES":
+            return Object.assign({}, state, { companies: action.companies });
+
+        case "COMPANY_FIELDS":
+            return Object.assign({}, state, { companyFields: action.companyFields });
 
         // case "ADD_MARSHLIST": //потом использовать для progress
         //     debugger

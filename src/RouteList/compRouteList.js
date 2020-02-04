@@ -8,7 +8,6 @@ import ChangeRouteList from '../ChangeRouteList/changeRouteList'
 class RouteList extends Component {
     state = {
         selectedRowIndex: 0,
-        selectedMarshList: null,
         showDeleteModal: false,
         changeMarshListvisible: false
     }
@@ -18,20 +17,15 @@ class RouteList extends Component {
     }
 
     deleteMarshList = () => {
-        console.log("ForDELETE", this.props.auth, this.state.selectedMarshList)
-        this.props.deleteMarshList(this.props.auth, this.state.selectedMarshList.ID);
+        console.log("ForDELETE", this.props.auth, this.props.selectedMarshList);
+        this.props.deleteMarshList(this.props.auth, this.props.selectedMarshList.ID);
         setTimeout(() => {
             this.setState({ showDeleteModal: false })
         }, 300)
+        //переместить курсор и удалить дочерние !!!
     }
 
-    componentWillMount() {
-        //this.props.checkAuth();
-    }
 
-    componentDidMount() {
-
-    }
 
     shouldComponentUpdate(nextProps, nextState) {
         if (!nextProps.marshListData)
@@ -90,7 +84,7 @@ class RouteList extends Component {
                 {marshListData ?
                     <div>
                         <AddRouteList />
-                        <ChangeRouteList selectedMarshList={this.state.selectedMarshList} manageVisible={this.manageVisible} changeMarshListvisible={this.state.changeMarshListvisible} />
+                        <ChangeRouteList manageVisible={this.manageVisible} changeMarshListvisible={this.state.changeMarshListvisible} />
 
                         <Modal
                             visible={this.state.showDeleteModal}
@@ -104,7 +98,7 @@ class RouteList extends Component {
                             <p>Вы хотите удалить эту запись?</p>
                         </Modal>
 
-                        <Table
+                        <Table style={{ backgroundColor: "#fdfdfd" }}
                             rowClassName={(record, index) => {
                                 if (index == this.state.selectedRowIndex) return "selected-routelist"
                             }}
@@ -122,7 +116,8 @@ class RouteList extends Component {
                                     onClick: event => {
                                         console.log("Click by ROW", event.target.text == 'Удалить', record, rowIndex);
 
-                                        self.setState({ selectedRowIndex: rowIndex, selectedMarshList: record })
+                                        self.setState({ selectedRowIndex: rowIndex });//, selectedMarshList: record })
+                                        self.props.selectMarshList(record)
 
                                         if (event.target.text == 'Удалить') {
                                             self.setState({

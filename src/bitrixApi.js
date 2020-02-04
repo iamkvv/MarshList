@@ -59,10 +59,11 @@ export function addFields(auth) {
         `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=Исполнитель&fields[IS_REQUIRED]=Y&fields[TYPE]=S&fields[CODE]=TIspolnitelt&fields[SORT]=50`,
         `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=ID Компании&fields[IS_REQUIRED]=Y&fields[TYPE]=N&fields[CODE]=Company_Id&fields[SORT]=60`,
         `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=Компания&fields[IS_REQUIRED]=Y&fields[TYPE]=S&fields[CODE]=Company&fields[SORT]=70`,
-        `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=Гис&fields[IS_REQUIRED]=N&fields[TYPE]=S&fields[CODE]=Gis&fields[SORT]=80`,
-        `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=Телефон&fields[IS_REQUIRED]=N&fields[TYPE]=S&fields[CODE]=Telephone&fields[SORT]=90`,
-        `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=Задание&fields[IS_REQUIRED]=Y&fields[TYPE]=S&fields[CODE]=Task&fields[SORT]=100`,
-        `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=ID Задачи&fields[IS_REQUIRED]=N&fields[TYPE]=N&fields[CODE]=Task_Id&fields[SORT]=110`,
+        `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=Адрес&fields[IS_REQUIRED]=Y&fields[TYPE]=S&fields[CODE]=address&fields[SORT]=80`,
+        `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=Гис&fields[IS_REQUIRED]=N&fields[TYPE]=S&fields[CODE]=Gis&fields[SORT]=90`,
+        `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=Телефон&fields[IS_REQUIRED]=N&fields[TYPE]=S&fields[CODE]=Telephone&fields[SORT]=100`,
+        `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=Задание&fields[IS_REQUIRED]=Y&fields[TYPE]=S&fields[CODE]=Task&fields[SORT]=110`,
+        `https://${auth.domain}/${addr}?auth=${auth.token}&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&fields[NAME]=ID Задачи&fields[IS_REQUIRED]=N&fields[TYPE]=N&fields[CODE]=Task_Id&fields[SORT]=120`,
     ]
     try {
         return fetch(arrAddr[0])
@@ -81,6 +82,7 @@ export function addFields(auth) {
             .then(d => fetch(arrAddr[12]))
             .then(d => fetch(arrAddr[13]))
             .then(d => fetch(arrAddr[14]))
+            .then(d => fetch(arrAddr[15]))
     } catch (err) {
         return err
     }
@@ -126,6 +128,45 @@ export function deleteMarshList(auth, elementid) {
 export function updateMarshList(auth, params) {
 
     let addr = "rest/lists.element.update"
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
+    return fetch(request, Post)
+        .then(response => response.json())
+}
+
+
+const BProp = (title, fields) => {
+    for (let fld of Object.keys(fields)) {
+        if (fields[fld].formLabel === title) return fld
+    }
+}
+
+//Все компании
+export function getCompanies(auth, fields) {
+    let fld2gis = BProp("2ГИС-адрес", fields);
+    let uraddr = BProp("Юридический адрес", fields);//юр. адрес
+
+    let addr = "rest/crm.company.list";
+    let params = `&select[]=ID&select[]=TITLE&select[]=PHONE&select[]=${fld2gis}&select[]=${uraddr}`
+    debugger
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
+
+    return fetch(request, Get)
+        .then(response => response.json());
+}
+
+//Метаданные полей компании
+export function getCompanyFields(auth) {
+    let addr = "rest/crm.company.fields";
+    //  let params = "&select[]=ID&select[]=TITLE&select[]=PHONE`///&select[]=UF_CRM_1579113190&select[]=UF_CRM_5E1D86B235DB7"
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}`//${params}`
+
+    return fetch(request, Get)
+        .then(response => response.json());
+}
+
+//Добавление задания в список (можно (потом) сделать 1 функцию для добавления записи в список))
+export function addTaskList(auth, params) {
+    let addr = "rest/lists.element.add"
     let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
     return fetch(request, Post)
         .then(response => response.json())

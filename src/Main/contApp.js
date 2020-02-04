@@ -16,6 +16,8 @@ const checkAuth = () => {
 const checkLists = (authData) => {
     return { type: "CHECK_LISTS", auth: authData }
 }
+
+
 const createLists = (authData) => {
     return { type: "CREATING_LISTS", creatingLists: true, auth: authData }
 }
@@ -35,19 +37,19 @@ function select(state) {
     return state.marshList
 }
 
-let currentValue
-function handleChange() {
-    let previousValue = currentValue
-    currentValue = select(store.getState())
+// let currentValue
+// function handleChange() {
+//     let previousValue = currentValue
+//     currentValue = select(store.getState())
 
-    if (previousValue !== currentValue) {
-        console.log(
-            'Некоторое глубокое вложенное свойство измененное от ',
-            previousValue,
-            'к',
-            currentValue)
-    }
-}
+//     if (previousValue !== currentValue) {
+//         console.log(
+//             'Некоторое глубокое вложенное свойство измененное от ',
+//             previousValue,
+//             'к',
+//             currentValue)
+//     }
+// }
 
 //store.subscribe(handleChange)
 

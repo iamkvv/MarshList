@@ -24,7 +24,8 @@ const StoP = (state) => {
         auth: state.auth,
         marshListFields: state.marshListFields, //метаданные полей MarshList
         marshListData: state.marshListData, //все марш. листы,
-        users: state.users
+        users: state.users,
+        selectedMarshList: state.selectedMarshList
     }
 }
 ////////////
@@ -71,10 +72,9 @@ const ChangeRoute_List = Form.create({ name: 'changeMarshList_modal' })(
         };
 
         render() {
-            const { users, onCancel, onCreate, form } = this.props;
-            // const { visible } = this.state;
+            const { users, form } = this.props;
             console.log("Modal changeMarshList props", this.props)
-            // ///???? value
+
             const Users = users.map((user) =>
                 (<Option key={user.ID}>{`${user.LAST_NAME} ${user.NAME}`}</Option>)
             );

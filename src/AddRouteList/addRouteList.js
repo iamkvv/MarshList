@@ -29,9 +29,6 @@ const StoP = (state) => {
     }
 }
 
-
-
-
 ////////////
 const AddRoute_List = Form.create({ name: 'addMarshList_modal' })(
 
@@ -150,7 +147,6 @@ const AddRoute_List = Form.create({ name: 'addMarshList_modal' })(
                             </Form>
                         </Modal>
                     </React.Fragment>
-
                 </React.Fragment>
 
             );

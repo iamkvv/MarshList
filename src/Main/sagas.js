@@ -1,9 +1,22 @@
 import { all, call, put, takeEvery } from 'redux-saga/effects';
-import { fetchLists, getFields, getListData, addList, addFields, getUsers, addMarshList, deleteMarshList, updateMarshList } from '../bitrixApi'
+import {
+    fetchLists, getFields, getListData, addList, addFields,
+    getUsers, addMarshList,
+    deleteMarshList, updateMarshList,
+    getCompanies, getCompanyFields, addTaskList
+} from '../bitrixApi'
 
 
+function objValToVal(arr) {//значения полей PROPERTY_ являлись объектом = приводим из к простым значениям
+
+    return arr.map(d => {
+        Object.keys(d).forEach(p =>
+            p.includes('PROPERTY_') ? d[p] = d[p][Object.keys(d[p])[0]] : d[p] = d[p]
+        )
+        return d
+    })
+}
 function* watchGetLists() {
-
     yield takeEvery("CHECK_LISTS", getLists)
 }
 
@@ -37,16 +50,27 @@ function* getLists(action) {
                     //получить все марш.листы, если их несколько, назначить 1-й текущим 
                     //затем получить все задания и отфильтровать их по ID текущего списка
                     const dataML = yield call(getListData, action.auth, "ML1");
-                    //значения полей PROPERTY_ являлись объектом = приводим из к простым значениям
-                    var convML = dataML.result.map(d => {
-                        Object.keys(d).forEach(p =>
-                            p.includes('PROPERTY_') ? d[p] = d[p][Object.keys(d[p])[0]] : d[p] = d[p]
-                        )
-                        return d
-                    })
                     const dataTL = yield call(getListData, action.auth, "TL1");
 
-                    yield put({ type: 'MARSHLIST_DATA_GET', marshListData: convML })
+                    if (dataML.result.length > 0) {
+                        let convML = objValToVal(dataML.result)
+
+                        yield put({ type: 'MARSHLIST_DATA_GET', marshListData: convML }); //сохраним марш.листы
+                        yield put({ type: 'SELECTED_MARSHLIST', selectedMarshList: convML[0] }); // и выбранный объ-т (1-й)
+                    } else {
+                        yield put({ type: 'MARSHLIST_DATA_GET', marshListData: [] })
+                    }
+
+                    if (dataTL.result.length > 0) {
+                        let convTL = objValToVal(dataTL.result)
+                        yield put({ type: 'TASKLIST_DATA_GET', taskListData: convTL });
+                    } else {
+                        yield put({ type: 'TASKLIST_DATA_GET', taskListData: [] });
+                    }
+
+
+
+
 
                 } else {
                     yield put({ type: "NOTFOUND_LISTS" })//в рез-те user должен получить предлжение создать списки
@@ -185,10 +209,48 @@ function* changeMarshlist(action) {
         })
         // const dataTL = yield call(getListData, action.auth, "TL1");
 
-        yield put({ type: 'MARSHLIST_DATA_GET', marshListData: convML })
+        yield put({ type: 'MARSHLIST_DATA_GET', marshListData: convML });
+
 
     }
     catch (error) {
+        yield put({ type: "FETCH_FAILED", error })
+    }
+}
+
+function* watchGetCompanies(action) {
+    yield takeEvery("GET_ALLCOMPANIES", GetCompanies)
+}
+
+function* GetCompanies(action) {
+    try {
+        const flds = yield call(getCompanyFields, action.auth);  //DO ERRORS!!
+        yield put({ type: 'COMPANY_FIELDS', companyFields: flds.result })
+
+        const compData = yield call(getCompanies, action.auth, flds.result); //DO ERRORS!!
+        console.log(compData);
+
+        yield put({ type: 'GET_COMPANIES', companies: compData.result })
+
+    } catch (err) {
+        yield put({ type: "FETCH_FAILED", error })
+    }
+}
+
+function* watchAddTaskList(action) {
+    yield takeEvery("ADD_TASKLIST", AddTaskList)
+}
+function* AddTaskList(action) {
+    try {
+        //addTaskList
+        const addedtasklist = yield call(addTaskList, action.auth, action.params); //DO ERRORS!!!
+        const dataTL = yield call(getListData, action.auth, "TL1");
+        debugger
+        //Снова получим весь список заданий но было б лучше просто добавить сохраненный объект в массив 
+        let convTL = objValToVal(dataTL.result)
+        yield put({ type: 'TASKLIST_DATA_GET', taskListData: convTL });
+
+    } catch (err) {
         yield put({ type: "FETCH_FAILED", error })
     }
 }
@@ -201,6 +263,8 @@ export default function* rootSaga() {
         watchGetUsers(),
         watchAddMarshList(),
         watchDeleteMarshList(),
-        watchUpdateMarshList()
+        watchUpdateMarshList(),
+        watchGetCompanies(),
+        watchAddTaskList()
     ])
 }
