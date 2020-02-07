@@ -36,30 +36,33 @@ class RouteList extends Component {
 
 
     createColumns = () => {
-        const { marshListFields } = this.props;
-        let cols = Object.keys(marshListFields)
-            .map(fld => ({ title: marshListFields[fld].NAME, dataIndex: fld, key: fld.toLocaleLowerCase() }))
+        if (this.props.marshListFields) {
 
-        cols.unshift({
-            title: 'ID',
-            dataIndex: 'ID',
-            key: 'id',
-            render: text => <b> {text}</b>,
-        })
+            const { marshListFields } = this.props;
+            let cols = Object.keys(marshListFields)
+                .map(fld => ({ title: marshListFields[fld].NAME, dataIndex: fld, key: fld.toLocaleLowerCase() }))
 
-        cols.push({
-            title: 'Действия',
-            key: 'action',
-            render: (text, record) => (
-                <span>
-                    <a>Изменить</a>
-                    <Divider type="vertical" />
-                    <a>Удалить</a>
-                </span>
-            )
-        })
-        let res = cols.filter(c => c.title !== "ID Исполнителя" && c.title !== "Название")
-        return res;
+            cols.unshift({
+                title: 'ID',
+                dataIndex: 'ID',
+                key: 'id',
+                render: text => <b> {text}</b>,
+            })
+
+            cols.push({
+                title: 'Действия',
+                key: 'action',
+                render: (text, record) => (
+                    <span>
+                        <a>Изменить</a>
+                        <Divider type="vertical" />
+                        <a>Удалить</a>
+                    </span>
+                )
+            })
+            let res = cols.filter(c => c.title !== "ID Исполнителя" && c.title !== "Название")
+            return res;
+        }
     }
 
     manageVisible = () => {
@@ -77,11 +80,11 @@ class RouteList extends Component {
     }
 
     render() {
-        const { marshListData, marshListFields, auth } = this.props;
-        console.log("RouteList", this.props)
+        const { marshListData, marshList, marshListFields, auth } = this.props;
+        console.log("RouteList Component", this.props)
         return (
             <div>
-                {marshListData ?
+                {true ?///this.props.marshListFields ?
                     <div>
                         <AddRouteList />
                         <ChangeRouteList manageVisible={this.manageVisible} changeMarshListvisible={this.state.changeMarshListvisible} />

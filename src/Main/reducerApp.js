@@ -3,7 +3,7 @@ const checkAuth = () => { //вынести в Helper
     if (!window.BX24) {
         conf = {
             auth: {
-                token: '767f395e004416ca0031392000000001201c03729fad6f1c7f637fc3980a045b453878',
+                token: '16123d5e004416ca0031392000000001201c0309af9bcf65cae4892ab82629398bb23a',
                 expires_in: new Date().valueOf(),
                 refresh_token: "123456",
                 domain: "anywhere.bitrix24.ru"
@@ -11,7 +11,6 @@ const checkAuth = () => { //вынести в Helper
         }
     }
     else {
-        n
         let a = BX24.getAuth();
         conf = {
             auth: {
@@ -42,6 +41,7 @@ const iniState = {
     selectedMarshList: null, //выбранный маршю лист (по умолч. 1-й )
     users: [],
     companies: [],
+    selectedTaskList: null,
     // creatingLists: false, //строятся ли листы
     listsError: null, //опиание ошибки при работе со списками
     somedata: { a: 1 }
@@ -60,6 +60,7 @@ const reducerApp = (state = iniState, action) => {
             return Object.assign({}, state, { marshList: action.marshList, taskList: action.taskList });
 
         case "NOTFOUND_LISTS":
+            console.log("case NOTFOUND_LISTS")
             return Object.assign({}, state, { marshList: false, taskList: false });
 
         case "LISTSFIELDS_METADATA":
@@ -73,7 +74,8 @@ const reducerApp = (state = iniState, action) => {
 
         case "SELECTED_MARSHLIST":
             return Object.assign({}, state, { selectedMarshList: action.selectedMarshList });
-
+        case "SELECTED_TASKLIST":
+            return Object.assign({}, state, { selectedTaskList: action.selectedTaskList });
 
 
         case "GET_USERS":

@@ -1,6 +1,7 @@
 .App {
+  font-family: 'Roboto Condensed', sans-serif;
   height: 100%;
-  min-height: 400px;
+  /* min-height: 600px; */
   background-color: #fffff5;
   /* text-align: center;
   display: flex;

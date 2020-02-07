@@ -146,8 +146,8 @@ export function getCompanies(auth, fields) {
     let uraddr = BProp("Юридический адрес", fields);//юр. адрес
 
     let addr = "rest/crm.company.list";
-    let params = `&select[]=ID&select[]=TITLE&select[]=PHONE&select[]=${fld2gis}&select[]=${uraddr}`
-    debugger
+    let params = `&select[]=ID&select[]=TITLE&select[]=UF_*`//   select[]=PHONE&select[]=UF_*` //${fld2gis}&select[]=${uraddr}`
+    //debugger
     let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
 
     return fetch(request, Get)
@@ -170,4 +170,65 @@ export function addTaskList(auth, params) {
     let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
     return fetch(request, Post)
         .then(response => response.json())
+}
+
+//Добавить Б24-задачу
+export function addUserTask(auth, resp_id, title, task, gis, company_id) {
+    let addr = "rest/tasks.task.add";
+    let content = task + "<br>" + "Открыть 2GIS: " + gis;
+    let company = 'fields[UF_CRM_TASK][0]=CO_' + company_id;
+    let params = `&fields[RESPONSIBLE_ID]=${resp_id}&fields[TITLE]=${title}&fields[DESCRIPTION]=${content}&${company}`
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
+    return fetch(request, Get)
+        .then(response => response.json());
+}
+
+//Обновляет запись в списке заданий
+export function updateTaskListRecord(auth, params) {
+    let addr = "rest/lists.element.update"
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
+    return fetch(request, Post)
+        .then(response => response.json())
+}
+
+
+//Удаление задания из списка
+export function deleteTaskList(auth, elementid) {
+    let addr = "rest/lists.element.delete";
+    let params = `&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=TL1&ELEMENT_ID=${elementid}`
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
+    return fetch(request, Get)
+        .then(response => response.json());
+}
+
+//Обновление задания в списке
+export function updateTaskList(auth, params) {
+    let addr = "rest/lists.element.update"
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
+    return fetch(request, Post)
+        .then(response => response.json())
+}
+
+
+///
+export function getLids(auth) {
+    let addr = "rest/crm.lead.list"
+    let request = `https://${auth.domain}/${addr}?auth=${auth.token}`
+
+    //Интересно, что saga получит уже разрешенное значение
+    return getBigList()(request, 0)
+}
+
+function getBigList() {
+    let arr = [];
+    return function getByPortion(url, start) {//, a) {
+        return fetch(url + `&start=${start}`, Get)
+            .then(response => response.json())
+            .then(data => {
+                arr = [...arr, ...data.result]
+                if (data.next) {
+                    return getByPortion(url, data.next)//, arr)
+                } else { return arr }
+            })
+    }
 }

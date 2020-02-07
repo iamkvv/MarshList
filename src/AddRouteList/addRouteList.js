@@ -108,7 +108,7 @@ const AddRoute_List = Form.create({ name: 'addMarshList_modal' })(
             return (
                 <React.Fragment>
                     <React.Fragment>
-                        <div style={{ margin: '15px' }}>
+                        <div style={{ marginBottom: '5px' }}>
                             <Button onClick={this.onCreateButtonClick} type="primary" style={{ marginLeft: 8 }}>
                                 Новый маршрутный лист
                             </Button>

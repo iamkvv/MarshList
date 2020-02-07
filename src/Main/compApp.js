@@ -8,63 +8,61 @@ import ListsNotFound_Create from '../ListsNotFound/contListsNotFound'
 import RouteList_CRUD from '../RouteList/contRouteList'
 import TaskList from '../TaskList/taskList'
 
-import ConnTest from './test'
+import Test from './test'
+//import ReactDOMServer from 'react-dom/server'
 
 class App extends Component {
     componentWillMount() {
         //this.props.checkAuth();
     }
 
-    componentDidMount() {
-        setTimeout(() => {
-            // this.props.checkLists(this.props.auth);
-        }, 10)
+
+    onClick = () => {
+        //      const html = ReactDOMServer.renderToString(<Test data={[1, 2, 3]} />)
+        debugger
     }
 
+
     render() {
-        const { auth, listsError, marshList, taskList, creatingLists, createLists } = this.props;
-        // const { show } = this.state
-        const showLoading = () => (
-            creatingLists && <Icon type="loading" />
-        );
+        const { listsError, marshList, taskList, creatingLists, createLists } = this.props;
+
+        // const showLoading = () => (
+        //     creatingLists && <Icon type="loading" />
+        // );
+
         const showListsError = () => (
             listsError && <p>При обращении к Универсальным Спискам произошла ошибка: {listsError}</p>
         );
 
-
         console.log("props MainApp", this.props)
-        //style={{ display: show ? "block" : "none" }}
+
         return (
             <ConfigProvider locale={ruRU}>
                 <div className="App">
-                    <div>
-                        {showListsError()
-                        }
-                        <Row type="flex" justify="center" align="middle">
-                            <Col span={20} offset={2}>
-                                <h1 style={{ textAlign: 'center', color: '#3f417d;' }}>Маршрутные листы</h1>
-                            </Col>
-                        </Row>
-                        <Row type="flex" justify="space-around" align="middle">
-                            <Col span={20} offset={2}>
-                                <ListsNotFound_Create />
-                                <ConnTest />
-                                <RouteList_CRUD />
-                            </Col>
-                        </Row>
-                        <Row type="flex" justify="space-around" align="middle">
-                            <Col span={20} offset={2}>
+
+                    {showListsError()
+                    }
+                    <Row type="flex" justify="left" align="middle">
+                        <Col span={18} offset={3}>
+                            <h1 style={{ textAlign: 'center', color: '#3f417d;' }}>Маршрутные листы</h1>
+                        </Col>
+                    </Row>
+
+                    <Row type="flex" justify="left" align="middle">
+                        <Col span={18} offset={3}>
+                            <ListsNotFound_Create />
+                            {this.props.marshListFields &&
+                                <RouteList_CRUD />}
+                        </Col>
+                    </Row>
+                    <Row type="flex" justify="left" align="middle">
+                        <Col span={18} offset={3}>
+                            {this.props.taskListFields &&
                                 <TaskList />
-                            </Col>
-                        </Row>
+                            }
+                        </Col>
+                    </Row>
 
-
-
-
-
-
-
-                    </div>
 
                 </div>
             </ConfigProvider>
