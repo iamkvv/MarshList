@@ -14,6 +14,16 @@
   background-color: beige;
 }
 
+.task-list-print {
+  display: block;
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+.task-list-print tr td th {
+  border: 1px solid gray;
+}
+
 .App-flex {
   flex: 1;
   display: flex;

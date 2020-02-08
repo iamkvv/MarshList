@@ -2,9 +2,8 @@ import React, { Component } from 'react'
 import { YMaps, Map } from 'react-yandex-maps';
 import { Modal, Button, message } from 'antd';
 import { connect } from 'react-redux'
-
-//import html2canvas from 'html2canvas'
-//import { updateRoutelist } from './bitrixapi'
+import ReactDOMServer from 'react-dom/server'
+import PrintMarshList from './printMarshList'
 
 const BProp = (metaTsk, title) => {//Возврашает PROPERTY_n по русс. имени поля
     for (let fld of Object.keys(metaTsk)) {
@@ -41,6 +40,7 @@ class Yandex_Routes extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            distanse: 0,
             taskList: []
         }
     }
@@ -48,13 +48,7 @@ class Yandex_Routes extends Component {
     mapInstance = null;
     ymapi = null;
 
-    // componentDidMount() {
-    //     console.log("DID Yandex didMount", this.props.tasksByRouteList)
-    //     console.log("DID Yandex objs ", this.ymapi, this.mapInstance)
-    // }
     onLoadMap = (apiobj) => {
-        // console.log("apiobj", apiobj);//маршрут уже можно строить
-        // console.log("mapInstance", this.mapInstance);
         this.ymapi = apiobj;
     }
 
@@ -68,9 +62,8 @@ class Yandex_Routes extends Component {
         const { tasksByML } = this.props;
 
         var RouteAddrs = [];
-        //переделать в map!! ??
 
-        for (var i = 0; i < tasksByML.length; i++) { //  tasksByRouteList.length; i++) {
+        for (var i = 0; i < tasksByML.length; i++) {
             if (i == 0) {
                 //  RouteAddrs.push(tasksByRouteList[i].ADDRESS)
                 RouteAddrs.push(tasksByML[i][BProp(this.props.taskListFields, "Адрес")])
@@ -87,10 +80,7 @@ class Yandex_Routes extends Component {
         let self = this;
         this.ymapi.route(
             RouteAddrs
-
         ).then(function (route) {
-
-            //  console.log("Map Objs ", self.mapInstance.geoObjects)
             self.mapInstance.geoObjects.removeAll()
             self.mapInstance.geoObjects.add(route);
 
@@ -132,6 +122,9 @@ class Yandex_Routes extends Component {
 
             //(elementid,iblockid, name, user_id, fio, date, comment,path)
 
+            self.setState({ distanse: Math.round(meters / 1000) })
+
+            /*
             //Обновить расстояние марш.листа
             const { selectedMarshList, marshListFields } = self.props;
 
@@ -144,24 +137,67 @@ class Yandex_Routes extends Component {
                 "fields[" + self.BProp(marshListFields, "Расстояние") + "]" + "=" + Math.round(meters / 1000) //+ " км"
 
             self.props.updateMarshList(self.props.auth, params);
+
             message.info(`Длина маршрута : ${Math.round(meters / 1000)} км`);
             //???  self.props.manageYandexRoute_Visible();
-
+            */
         })
     }
 
+    saveDistanse = () => {
+        //Обновить расстояние марш.листа
+        const { selectedMarshList, marshListFields } = this.props;
+
+        let params = "&IBLOCK_TYPE_ID=lists&IBLOCK_CODE=ML1&ELEMENT_ID=" + selectedMarshList.ID + "&" +
+            "fields[" + this.BProp(marshListFields, "Название") + "]" + "=МЛ" + "&" +
+            "fields[" + this.BProp(marshListFields, "Исполнитель") + "]" + "=" + selectedMarshList[this.BProp(marshListFields, "Исполнитель")] + "&" +
+            "fields[" + this.BProp(marshListFields, "ID Исполнителя") + "]" + "=" + selectedMarshList[this.BProp(marshListFields, "ID Исполнителя")] + "&" +
+            "fields[" + this.BProp(marshListFields, "Дата") + "]" + "=" + selectedMarshList[this.BProp(marshListFields, "Дата")] + "&" +
+            "fields[" + this.BProp(marshListFields, "Комментарий") + "]" + "=" + selectedMarshList[this.BProp(marshListFields, "Комментарий")] + "&" +
+            "fields[" + this.BProp(marshListFields, "Расстояние") + "]" + "=" + this.state.distanse//+ " км"
+
+        this.props.updateMarshList(this.props.auth, params);
+
+        message.info(`Длина маршрута : ${this.state.distanse} км`);
+    }
+
     onClickCalc = () => {
-        //  this.props.rootfunc(this.ymapi, this.mapInstance)
         this.createRoute();
     }
 
-    printMap = () => {
-    }
 
     onCancel = () => {
         this.props.manageYandexRoute_Visible();
-
     }
+
+    printMarshList = () => {
+        // var content = document.getElementById(divId).innerHTML;
+        const { taskListFields } = this.props;
+        let tasks = this.props.tasksByML.map((item, i) => (
+            {
+                num: i + 1,
+                company: item[this.BProp(taskListFields, "Компания")],
+                address: item[this.BProp(taskListFields, "Адрес")],
+                task: item[this.BProp(taskListFields, "Задание")]
+            }
+        ))
+
+        const html = ReactDOMServer.renderToString(<PrintMarshList data={tasks} dist={this.state.distanse} />)
+
+        var mywindow = window.open('', 'Print', 'height=600,width=800');
+
+        mywindow.document.write('<html><head><style>');
+        mywindow.document.write(".task-list-print { border-collapse: collapse; margin: 20 auto;}")
+        mywindow.document.write(".task-list-print tr, td, th {border: 1px solid gray; padding:10px}")
+        mywindow.document.write('</style></head><body >');
+        mywindow.document.write(html);
+        mywindow.document.write('</body></html>');
+        mywindow.document.close();
+        mywindow.focus()
+        mywindow.print();
+        mywindow.close();
+    }
+
     render() {
         return (
 
@@ -171,13 +207,14 @@ class Yandex_Routes extends Component {
                 bodyStyle={{ width: 650, padding: 0, minHeight: 600 }}
                 width={650}
                 centered
-                title={<div><Button onClick={this.createRoute}>Построить маршрут</Button><Button onClick={this.createRoute}>Сохранить</Button> </div>}
-                // okText="Создать"
+                title={<div>
+                    <Button onClick={this.createRoute}>Построить маршрут</Button>
+                    <Button style={{ margin: '0 7px' }} onClick={this.saveDistanse}>Сохранить расстояние</Button>
+                    <Button onClick={this.printMarshList}>Распечатать</Button>
+                </div>}
                 onCancel={this.onCancel}
                 onOk={this.onCancel} //{onCreate}
             >
-
-
                 <YMaps query={{
                     lang: 'ru_RU',
                     mode: 'release',
@@ -198,35 +235,15 @@ class Yandex_Routes extends Component {
                             style={{ margin: '20px auto', width: 600, height: 600 }}
                             instanceRef={(map) => this.mapInstance = map}
                             onLoad={(y) => {
-                                // console.log("Map onLoad", this, y); 
                                 this.onLoadMap(y)
                             }}
                         >
-
                         </Map>
-                        <div>
-                            <table className="task-list-print">
-                                <tbody>
-                                    {this.state.taskList.map((tsk) => {
-                                        return <tr>
-                                            <td>{tsk.Company}</td>
-                                            <td style={{ width: '100%' }}>{tsk.Address}</td>
-                                            <td>{tsk.Tel}</td>
-                                            <td dangerouslySetInnerHTML={{ __html: tsk.Task }}></td>
-                                        </tr>
-                                    }
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
                 </YMaps>
-
             </Modal>
-
         )
     }
-
 }
 
 const YandexRoutes = connect(StoP, DtoP)(Yandex_Routes)

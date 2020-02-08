@@ -236,14 +236,29 @@ function* GetCompanies(action) {
         const flds = yield call(getCompanyFields, action.auth);  //DO ERRORS!!
         yield put({ type: 'COMPANY_FIELDS', companyFields: flds.result })
 
-        const compData = yield call(getCompanies, action.auth, flds.result); //DO ERRORS!!
-        console.log(compData);
-        debugger;
+        const compData = yield call(getCompanies, action.auth);//Получаем компании через List-method рекурсивно
+        console.log("Company+Meta ", flds.result, compData);
 
-        yield put({ type: 'GET_COMPANIES', companies: compData.result })
+        //уберем тех, у кого нет адреса
+        let B24adr = null; //имя поля  в Б24
+        for (let fld of Object.keys(flds.result)) {
+            if (flds.result[fld].formLabel === "Адрес") B24adr = fld
+        }
+
+        if (B24adr) {
+            let fltCompData = compData.filter(cmp => cmp.hasOwnProperty(B24adr) && cmp[B24adr])
+            yield put({ type: 'GET_COMPANIES', companies: fltCompData });
+
+        } else {
+            yield put({ type: 'GET_COMPANIES', companies: compData });
+        }
+
+
+
+
 
     } catch (err) {
-        yield put({ type: "FETCH_FAILED", error })
+        yield put({ type: "FETCH_FAILED", err })
     }
 }
 //Добавляет задание в список

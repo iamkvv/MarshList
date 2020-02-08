@@ -3,7 +3,7 @@ const checkAuth = () => { //вынести в Helper
     if (!window.BX24) {
         conf = {
             auth: {
-                token: '16123d5e004416ca0031392000000001201c0309af9bcf65cae4892ab82629398bb23a',
+                token: '15993d5e004416ca0031392000000001201c03d70ab1c0e030338b14bc7b5e068b8547',
                 expires_in: new Date().valueOf(),
                 refresh_token: "123456",
                 domain: "anywhere.bitrix24.ru"

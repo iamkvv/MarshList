@@ -141,17 +141,21 @@ const BProp = (title, fields) => {
 }
 
 //Все компании
-export function getCompanies(auth, fields) {
-    let fld2gis = BProp("2ГИС-адрес", fields);
-    let uraddr = BProp("Юридический адрес", fields);//юр. адрес
+export function getCompanies(auth) {     // fields) {
+    // let fld2gis = BProp("2ГИС-адрес", fields);
+    // let uraddr = BProp("Юридический адрес", fields);//юр. адрес
 
     let addr = "rest/crm.company.list";
-    let params = `&select[]=ID&select[]=TITLE&select[]=UF_*`//   select[]=PHONE&select[]=UF_*` //${fld2gis}&select[]=${uraddr}`
-    //debugger
+    let params = `&select[]=ID&select[]=TITLE&select[]=PHONE&select[]=UF_*`;  //   select[]=PHONE&select[]=UF_*` //${fld2gis}&select[]=${uraddr}`
+    // debugger
     let request = `https://${auth.domain}/${addr}?auth=${auth.token}${params}`
 
-    return fetch(request, Get)
-        .then(response => response.json());
+    // return fetch(request, Get)
+    //     .then(response => response.json());
+
+
+    let result = getBigList()(request, 0);
+    return result
 }
 
 //Метаданные полей компании

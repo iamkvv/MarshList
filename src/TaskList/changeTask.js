@@ -81,7 +81,7 @@ const Update_Task = Form.create({ name: 'changeTask_modal' })(
                         "fields[" + this.BPropTL("Адрес") + "]" + "=" + company[this.BPropComp("Адрес")].split("|")[0] + "&" +
 
                         "fields[" + this.BPropTL("Гис") + "]" + "=" + company[this.BPropComp("2ГИС-адрес")] + "&" +
-                        "fields[" + this.BPropTL("Телефон") + "]" + "=" + " " + "&" +//  company.PHONE[0].VALUE + "&" +
+                        "fields[" + this.BPropTL("Телефон") + "]" + "=" + (company.hasOwnProperty("PHONE") ? company.PHONE[0].VALUE : " ") + "&" +
                         "fields[" + this.BPropTL("Задание") + "]" + "=" + "<p>" + values.task.replace(/\n/g, "<br/>") + "</p>" + "&" +
                         "fields[" + this.BPropTL("ID Задачи") + "]" + "=0" + "&" //+
                     //"ELEMENT_CODE=" + (new Date().getTime())
